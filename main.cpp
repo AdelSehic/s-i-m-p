@@ -94,7 +94,6 @@ void modify_contrast(pixelArr& pix){
     double modifier;
     std::cout << "Modify by : "; std::cin >> modifier; std::cout << std::endl;
     for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) w[i] +=  (w[i]-128)*modifier;
-
 }
 
 void modify_brightness(pixelArr& pix){
@@ -103,13 +102,35 @@ void modify_brightness(pixelArr& pix){
     for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) w[i] +=  modifier;
 }
 
+void to_grayscale(pixelArr& pikseli){
+    std::ofstream output;
+    output.open("greyscale.pgm");
+
+    output << "P2\n" << image_width << ' ' << image_height << '\n' << image_depth << '\n';
+
+    for(int i = 0; i < image_height; ++i){
+        for(int x = 0; x < image_width; ++x){
+            int out = (pikseli.at(i).at(x)[0] + pikseli.at(i).at(x)[1] + pikseli.at(i).at(x)[2]) / 3;
+            if(out > 255) output << 255 << ' ';
+            else if(out < 0) output << 0 << ' ';
+            else output << out << ' '; 
+        }
+    }
+
+    output.close();
+}
+
+void gaussian_blur(pixelArr& pix){
+
+}
+
 int main(){
 
     pixelArr pikseli{load_image()};
 
     char choice = ' ';
-    while( std::cin ){
-        std::cout << "r/g/b - modify individual values by x\nc - modify contrast\nv - modify brightness\nEnter your choice : ";
+    while(1){
+        std::cout << "r/g/b - modify individual values by x\nc - modify contrast\nv - modify brightness\nq\nEnter your choice : ";
         std::cin>>choice;
         if(std::cin) switch (choice){
             case 'r':
@@ -127,9 +148,12 @@ int main(){
             case 'v':
                 modify_brightness(pikseli);
                 break;
+            case 'q':
+                to_grayscale(pikseli);
+                break;
             default:
                 break;
-        }
+        } else break;
         output_image(pikseli);
     }
 
