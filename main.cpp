@@ -33,7 +33,11 @@ pixelArr make_array(int r = 255, int g = 255, int b = 255){
 pixelArr load_image(){
 
     std::ifstream input;
-    input.open("bird.ppm");
+
+    std::cout<< "Name of the picture to work on : ";
+    std::string slika; std::cin >> slika;
+
+    input.open(slika + ".ppm");
     int r, g, b;
     std::string type;
 
@@ -50,11 +54,7 @@ pixelArr load_image(){
     return pix;
 }
 
-void output_image(const pixelArr& pikseli){
-
-    std::string outName;
-    std::cout << "Enter output image name: ";
-    std::cin >> outName;
+void output_image(const pixelArr& pikseli, std::string outName = "temp"){
 
     std::ofstream output;
     output.open(outName + ".ppm");
@@ -63,39 +63,77 @@ void output_image(const pixelArr& pikseli){
 
     for(int i = 0; i < image_height; ++i){
         for(int x = 0; x < image_width; ++x){
-            output << pikseli.at(i).at(x)[0] << ' ' << pikseli.at(i).at(x)[1] << ' ' <<  pikseli.at(i).at(x)[2] << '\n';
+
+            if ( pikseli.at(i).at(x)[0] > 255 ) output << 255 << ' ';
+            else if ( pikseli.at(i).at(x)[0] < 0 ) output << 0 << ' ';
+            else output << pikseli.at(i).at(x)[0] << ' ';
+
+            if ( pikseli.at(i).at(x)[1] > 255 ) output << 255 << ' ';
+            else if ( pikseli.at(i).at(x)[1] < 0 ) output << 0<< ' ';
+            else output << pikseli.at(i).at(x)[1]<< ' ';
+
+            if ( pikseli.at(i).at(x)[2] > 255 ) output << 255<< ' ';
+            else if ( pikseli.at(i).at(x)[2] < 0 ) output << 0<< ' ';
+            else output << pikseli.at(i).at(x)[2]<< ' ';
+
+            // output << pikseli.at(i).at(x)[0] << ' ' << pikseli.at(i).at(x)[1] << ' ' <<  pikseli.at(i).at(x)[2] << '\n';
         }
     }
 
     output.close();
 }
 
-void blue_filter(pixelArr& pix){
-    for(auto&& h : pix) for(auto&& w : h){
-        w[2] += 50;
-        if ( w[2] > 255 ) w[2] = 255;
-    }
+void rgb_modifier(pixelArr& pix, int choice){
+    int modifier;
+    std::cout << "Modify by : "; std::cin >> modifier; std::cout << std::endl;
+    for(auto&& h : pix) for(auto&& w : h)
+        w[choice] += modifier;
 }
 
-void increase_contrast(pixelArr& pix){
-    for(auto&& h : pix) for(auto&& w : h){
-        for(int i = 0; i < 3; ++i){
-            w[i] +=  (w[i]-128)*0.2;
-            if ( w[i] > 255 ) w[i] = 255;
-            if ( w[i] < 0 ) w[i] = 0;
-        }
-    }
+void modify_contrast(pixelArr& pix){
+    double modifier;
+    std::cout << "Modify by : "; std::cin >> modifier; std::cout << std::endl;
+    for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) w[i] +=  (w[i]-128)*modifier;
+
+}
+
+void modify_brightness(pixelArr& pix){
+    double modifier;
+    std::cout << "Modify by : "; std::cin >> modifier; std::cout << std::endl;
+    for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) w[i] +=  modifier;
 }
 
 int main(){
 
     pixelArr pikseli{load_image()};
 
-    // blue_filter(pikseli);
+    char choice = ' ';
+    while( std::cin ){
+        std::cout << "r/g/b - modify individual values by x\nc - modify contrast\nv - modify brightness\nEnter your choice : ";
+        std::cin>>choice;
+        if(std::cin) switch (choice){
+            case 'r':
+                rgb_modifier(pikseli, 0);
+                break;
+            case 'g':
+                rgb_modifier(pikseli, 1);
+                break;
+            case 'b':
+                rgb_modifier(pikseli, 2);
+                break;
+            case 'c':
+                modify_contrast(pikseli);
+                break;
+            case 'v':
+                modify_brightness(pikseli);
+                break;
+            default:
+                break;
+        }
+        output_image(pikseli);
+    }
 
-    increase_contrast(pikseli);
-
-    output_image(pikseli);
+    output_image(pikseli, "output");
 
     return 0;
 }
