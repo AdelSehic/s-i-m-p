@@ -121,11 +121,11 @@ void gaussian_blur(pixelArr& pix){
     auto temp = make_array();
 
     double kernel[5][5] = {
-        {0.5, 0.5, 1, 0.5, 0.5},
-        {0.5, 1,  2, 1, 0.5},
-        {1, 2,   4,  2, 1},
-        {0.5, 1,  2, 1, 0.5},
-        {0.5, 0.5, 1, 0.5, 0.5},
+        {0.25,0.5,1,0.5,0.25},
+        {0.5,1,2,1,0.5},
+        {1,2,4,2,1},
+        {0.5,1,2,1,0.5},
+        {0.25,0.5,1,0.5,0.25},
     };
 
     for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) for(auto i = 0; i < 3; ++i){
@@ -140,7 +140,12 @@ void gaussian_blur(pixelArr& pix){
     }
     
     output_image(temp, "gaus");
-}// far from a perfect gaussian output since it messes with brigtness of the image, but it's good enough as a proof of concept
+}/*
+far from a perfect gaussian output since it
+messes with brigtness of the image, and doesn't
+cover literal edge cases
+but it's good enough as a proof of concept
+*/
 
 int main(){
 
