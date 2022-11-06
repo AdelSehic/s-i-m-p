@@ -21,10 +21,8 @@ pixelArr make_array(int r = 255, int g = 255, int b = 255){
 
     for(int i = 0; i < image_height; ++i){
         pix.at(i).resize(image_width);
-        for(int x = 0; x < image_width; ++x){
-            pix.at(i).at(x).resize(3);
-            // recolor_pixel(pix[i][x], r, g, b);
-        }
+        for(int x = 0; x < image_width; ++x)
+            pix.at(i).at(x).resize(3); 
     }
 
     return pix;
@@ -75,8 +73,6 @@ void output_image(const pixelArr& pikseli, std::string outName = "temp"){
             if ( pikseli.at(i).at(x)[2] > 255 ) output << 255<< ' ';
             else if ( pikseli.at(i).at(x)[2] < 0 ) output << 0<< ' ';
             else output << pikseli.at(i).at(x)[2]<< ' ';
-
-            // output << pikseli.at(i).at(x)[0] << ' ' << pikseli.at(i).at(x)[1] << ' ' <<  pikseli.at(i).at(x)[2] << '\n';
         }
     }
 
@@ -122,7 +118,29 @@ void to_grayscale(pixelArr& pikseli){
 
 void gaussian_blur(pixelArr& pix){
 
-}
+    auto temp = make_array();
+
+    double kernel[5][5] = {
+        {0.5, 0.5, 1, 0.5, 0.5},
+        {0.5, 1,  2, 1, 0.5},
+        {1, 2,   4,  2, 1},
+        {0.5, 1,  2, 1, 0.5},
+        {0.5, 0.5, 1, 0.5, 0.5},
+    };
+
+    for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) for(auto i = 0; i < 3; ++i){
+        int zbir = 0;
+        for(int ky = 0; ky < 5; ++ky){
+            for(int kx = 0; kx < 5; ++kx){
+                zbir += pix.at(y-2+ky).at(x+kx-2)[i] * kernel[ky][kx];                
+            }
+        }
+        zbir /= 25;
+        temp[y][x][i] = zbir;
+    }
+    
+    output_image(temp, "gaus");
+}// far from a perfect gaussian output since it messes with brigtness of the image, but it's good enough as a proof of concept
 
 int main(){
 
@@ -130,7 +148,7 @@ int main(){
 
     char choice = ' ';
     while(1){
-        std::cout << "r/g/b - modify individual values by x\nc - modify contrast\nv - modify brightness\nq\nEnter your choice : ";
+        std::cout << "r/g/b - modify individual values by x\nc - modify contrast\nv - modify brightness\nq - greyscale output\no - gaussian output\nEnter your choice : ";
         std::cin>>choice;
         if(std::cin) switch (choice){
             case 'r':
@@ -150,6 +168,9 @@ int main(){
                 break;
             case 'q':
                 to_grayscale(pikseli);
+                break;
+            case 'o':
+                gaussian_blur(pikseli);
                 break;
             default:
                 break;
