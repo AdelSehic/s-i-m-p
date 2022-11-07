@@ -140,38 +140,54 @@ but it's good enough as a proof of concept
 void sobel(pixelArr& pix){
 
     auto temp_x = make_array();
-    auto temp_y{temp_x};
+    auto temp_y = make_array();
 
-    float kernelx[3][3] = {
-        {0.5, 0, -0.5},
-        {1.25, 0, -1.25},
-        {0.5, 0, -0.5},
+    for(int i = 0; i < image_height; ++i) for(int x = 0; x < image_width; ++x){
+        temp_x[i][x][0] = temp_y[i][x][0] = (pix.at(i).at(x)[0] + pix.at(i).at(x)[1] + pix.at(i).at(x)[2]) / 3;
+    }
+
+    // float kernelx[3][3] = {
+    //     { 0.5, 0, -0.5 },
+    //     {1.25, 0, -1.25},
+    //     { 0.5, 0, -0.5 },
+    // };
+    // float kernely[3][3] = {   // significantly better-looking edge at lower resolutions
+    //     { 0.5, 1.25, 0.5},
+    //     {  0,    0,   0 },
+    //     {-0.5,-1.25,-0.5}
+    // };
+
+    int kernelx[3][3] = {
+        { 1, 0, -1 },
+        {2, 0, -2},
+        { 1, 0, -1 },
     };
-    float kernely[3][3] = {
-        { 0.5, 1.25, 0.5},
-        { 0, 0, 0},
-        {-0.5,-1.25,-0.5}
-    }; // significantly better-looking edge at lower resolutions
+    int kernely[3][3] = {   // significantly better-looking edge at lower resolutions
+        { 1, 2, 1},
+        {  0,    0,   0 },
+        {-1,-2,-1}
+    };
 
     int zbir_x, zbir_y;
-    for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) for(auto i = 0; i < 3; ++i){
+    for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) {
         zbir_x = zbir_y = 0;
         for(int ky = 0; ky < 3; ++ky){
             for(int kx = 0; kx < 3; ++kx){
-                zbir_x += pix.at(y-1+ky).at(x+kx-1)[i] * kernelx[ky][kx];               
-                zbir_y += pix.at(y-1+ky).at(x+kx-1)[i] * kernely[ky][kx];
+                zbir_x += pix.at(y-1+ky).at(x+kx-1)[0] * kernelx[ky][kx];               
+                zbir_y += pix.at(y-1+ky).at(x+kx-1)[0] * kernely[ky][kx];
             }
         }
-        temp_x[y][x][i] = zbir_x;
-        temp_y[y][x][i] = zbir_y;
+        temp_x[y][x][0] = zbir_x;
+        temp_y[y][x][0] = zbir_y;
     }
-    
-    to_grayscale(temp_x, "edges_y.pgm");
-    to_grayscale(temp_y, "edges_x.pgm");
 
-    for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) for(auto i = 0; i < 3; ++i)
-        temp_x[y][x][i] = ( temp_x[y][x][i] + temp_y[y][x][i] ) / 2;
-    to_grayscale(temp_x, "edges.pgm"); // one third the size of a ppm
+    std::ofstream output;
+    output.open("edges.pgm");
+    output << "P2\n" << image_width << ' ' << image_height << '\n' << image_depth << '\n';
+    for(auto y = 0; y < image_height; ++y) for(auto x = 0; x < image_width; ++x)
+        output << trunc(temp_x[y][x][0] + temp_y[y][x][0])/2 << ' ';
+    output.close();
+    // to_grayscale(temp_x, "edges.pgm");
 }
 
 int main(){
