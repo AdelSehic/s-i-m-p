@@ -136,21 +136,12 @@ messes with brigtness of the image, and doesn't
 cover literal edge cases
 but it's good enough as a proof of concept
 */
+
 void sobel(pixelArr& pix){
 
     auto temp_x = make_array();
     auto temp_y{temp_x};
 
-    // int kernelx[3][3] = {
-    //     {1, 0, -1},
-    //     {2, 0, -2},
-    //     {1, 0, -1},
-    // };
-    // int kernely[3][3] = {
-    //     { 1, 2, 1},
-    //     { 0, 0, 0},
-    //     {-1,-2,-1}
-    // };
     float kernelx[3][3] = {
         {0.5, 0, -0.5},
         {1.25, 0, -1.25},
@@ -179,7 +170,7 @@ void sobel(pixelArr& pix){
     to_grayscale(temp_y, "edges_x.pgm");
 
     for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) for(auto i = 0; i < 3; ++i)
-        temp_x[y][x][i] = trunc(( temp_x[y][x][i] + temp_y[y][x][i] )/2);
+        temp_x[y][x][i] = ( temp_x[y][x][i] + temp_y[y][x][i] ) / 2;
     to_grayscale(temp_x, "edges.pgm"); // one third the size of a ppm
 }
 
