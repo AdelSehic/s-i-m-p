@@ -185,7 +185,7 @@ void sobel(pixelArr& pix){
     output.open("edges.pgm");
     output << "P2\n" << image_width << ' ' << image_height << '\n' << image_depth << '\n';
     for(auto y = 0; y < image_height; ++y) for(auto x = 0; x < image_width; ++x)
-        output << trunc(temp_x[y][x][0] + temp_y[y][x][0])/2 << ' ';
+        output << trunc(temp_x[y][x][0] + temp_y[y][x][0]) /2 << ' ';
     output.close();
     // to_grayscale(temp_x, "edges.pgm");
 }
