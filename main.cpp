@@ -8,6 +8,11 @@
 
 int image_width = 720, image_height = 1280, image_depth = 255;
 
+int trunc(int value){
+    if(value>255) value = 255;
+    if(value<0) value = 0;
+    return value;
+}
 
 void recolor_pixel( std::vector<int>& pix, int r = 0, int g = 0, int b = 0){
     pix.at(0) = r;
@@ -61,18 +66,9 @@ void output_image(const pixelArr& pikseli, std::string outName = "temp"){
 
     for(int i = 0; i < image_height; ++i){
         for(int x = 0; x < image_width; ++x){
-
-            if ( pikseli.at(i).at(x)[0] > 255 ) output << 255 << ' ';
-            else if ( pikseli.at(i).at(x)[0] < 0 ) output << 0 << ' ';
-            else output << pikseli.at(i).at(x)[0] << ' ';
-
-            if ( pikseli.at(i).at(x)[1] > 255 ) output << 255 << ' ';
-            else if ( pikseli.at(i).at(x)[1] < 0 ) output << 0<< ' ';
-            else output << pikseli.at(i).at(x)[1]<< ' ';
-
-            if ( pikseli.at(i).at(x)[2] > 255 ) output << 255<< ' ';
-            else if ( pikseli.at(i).at(x)[2] < 0 ) output << 0<< ' ';
-            else output << pikseli.at(i).at(x)[2]<< ' ';
+            output << trunc(pikseli.at(i).at(x)[0]) << ' ';
+            output << trunc(pikseli.at(i).at(x)[1]) << ' ';
+            output << trunc(pikseli.at(i).at(x)[2]) << ' ';
         }
     }
 
@@ -86,10 +82,8 @@ void rgb_modifier(pixelArr& pix, int choice){
         w[choice] += modifier;
 }
 
-void modify_contrast(pixelArr& pix){
-    double modifier;
-    std::cout << "Modify by : "; std::cin >> modifier; std::cout << std::endl;
-    for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) w[i] +=  (w[i]-128)*modifier;
+void modify_contrast(pixelArr& pix, double modifier){
+    for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) w[i] =  trunc(modifier*(w[i]-128)+128);
 }
 
 void modify_brightness(pixelArr& pix){
@@ -98,19 +92,15 @@ void modify_brightness(pixelArr& pix){
     for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) w[i] +=  modifier;
 }
 
-void to_grayscale(pixelArr& pikseli){
+void to_grayscale(pixelArr& pikseli, std::string ime = "greyscale.pgm"){
     std::ofstream output;
-    output.open("greyscale.pgm");
+    output.open(ime);
 
     output << "P2\n" << image_width << ' ' << image_height << '\n' << image_depth << '\n';
 
-    for(int i = 0; i < image_height; ++i){
-        for(int x = 0; x < image_width; ++x){
-            int out = (pikseli.at(i).at(x)[0] + pikseli.at(i).at(x)[1] + pikseli.at(i).at(x)[2]) / 3;
-            if(out > 255) output << 255 << ' ';
-            else if(out < 0) output << 0 << ' ';
-            else output << out << ' '; 
-        }
+    for(int i = 0; i < image_height; ++i) for(int x = 0; x < image_width; ++x){
+        int out = (pikseli.at(i).at(x)[0] + pikseli.at(i).at(x)[1] + pikseli.at(i).at(x)[2]) / 3;
+        output << trunc(out) << ' ';
     }
 
     output.close();
@@ -146,6 +136,52 @@ messes with brigtness of the image, and doesn't
 cover literal edge cases
 but it's good enough as a proof of concept
 */
+void sobel(pixelArr& pix){
+
+    auto temp_x = make_array();
+    auto temp_y{temp_x};
+
+    // int kernelx[3][3] = {
+    //     {1, 0, -1},
+    //     {2, 0, -2},
+    //     {1, 0, -1},
+    // };
+    // int kernely[3][3] = {
+    //     { 1, 2, 1},
+    //     { 0, 0, 0},
+    //     {-1,-2,-1}
+    // };
+    float kernelx[3][3] = {
+        {0.5, 0, -0.5},
+        {1.25, 0, -1.25},
+        {0.5, 0, -0.5},
+    };
+    float kernely[3][3] = {
+        { 0.5, 1.25, 0.5},
+        { 0, 0, 0},
+        {-0.5,-1.25,-0.5}
+    }; // significantly better-looking edge at lower resolutions
+
+    int zbir_x, zbir_y;
+    for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) for(auto i = 0; i < 3; ++i){
+        zbir_x = zbir_y = 0;
+        for(int ky = 0; ky < 3; ++ky){
+            for(int kx = 0; kx < 3; ++kx){
+                zbir_x += pix.at(y-1+ky).at(x+kx-1)[i] * kernelx[ky][kx];               
+                zbir_y += pix.at(y-1+ky).at(x+kx-1)[i] * kernely[ky][kx];
+            }
+        }
+        temp_x[y][x][i] = zbir_x;
+        temp_y[y][x][i] = zbir_y;
+    }
+    
+    to_grayscale(temp_x, "edges_y.pgm");
+    to_grayscale(temp_y, "edges_x.pgm");
+
+    for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) for(auto i = 0; i < 3; ++i)
+        temp_x[y][x][i] = trunc(( temp_x[y][x][i] + temp_y[y][x][i] )/2);
+    to_grayscale(temp_x, "edges.pgm"); // one third the size of a ppm
+}
 
 int main(){
 
@@ -153,8 +189,9 @@ int main(){
 
     char choice = ' ';
     while(1){
-        std::cout << "r/g/b - modify individual values by x\nc - modify contrast\nv - modify brightness\nq - greyscale output\no - gaussian output\nEnter your choice : ";
+        std::cout << "r/g/b - modify individual values by x\nc - modify contrast\nv - modify brightness\nq - greyscale output\no - gaussian output\ne - edge isolation\nEnter your choice : ";
         std::cin>>choice;
+        double input;
         if(std::cin) switch (choice){
             case 'r':
                 rgb_modifier(pikseli, 0);
@@ -166,7 +203,8 @@ int main(){
                 rgb_modifier(pikseli, 2);
                 break;
             case 'c':
-                modify_contrast(pikseli);
+                std::cout << "Modify by : "; std::cin >> input; std::cout << std::endl;
+                modify_contrast(pikseli, input);
                 break;
             case 'v':
                 modify_brightness(pikseli);
@@ -176,6 +214,9 @@ int main(){
                 break;
             case 'o':
                 gaussian_blur(pikseli);
+                break;
+            case 'e':
+                sobel(pikseli);
                 break;
             default:
                 break;
