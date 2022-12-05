@@ -5,13 +5,15 @@ int main(){
 
     image q("apollo");
 
-    q.modify_contrast(1.5);
+    slika* p = &q;
 
-    q.save("modified");
+    p->modify_contrast(1.5);
 
-    q.gaussian_blur();
+    p->save("modified");
 
-    q.save("gaus");
+    p->gaussian_blur();
+
+    p->save("gaus");
 
     return 0;
 }

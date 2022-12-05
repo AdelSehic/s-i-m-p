@@ -6,7 +6,7 @@ void image::recolor_pixel( std::vector<int>& pix, int r = 0, int g = 0, int b = 
     pix.at(2) = b;
 }
 
-int image::trunc(int value){
+int slika::trunc(int value){
     if(value>255) value = 255;
     if(value<0) value = 0;
     return value;
