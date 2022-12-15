@@ -15,5 +15,13 @@ int main(){
 
     p->save("gaus");
 
+    p = new greyscale{image{"monument"}};
+
+    p->sobel();
+
+    p->save("monument_edges");
+
+    delete p;
+
     return 0;
 }
