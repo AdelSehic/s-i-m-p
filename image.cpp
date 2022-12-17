@@ -97,44 +97,20 @@ void image::gaussian_blur(){
 
 void image::sobel(){
 
-    auto temp_x = pix;
-    auto temp_y = pix;
+    auto temp = this->to_greyscale();
 
-    for(int i = 0; i < image_height; ++i) for(int x = 0; x < image_width; ++x){
-        temp_x[i][x][0] = temp_y[i][x][0] = (pix.at(i).at(x)[0] + pix.at(i).at(x)[1] + pix.at(i).at(x)[2]) / 3;
-    }
-
-    int kernelx[3][3] = {
-        { 1, 0, -1 },
-        {2, 0, -2},
-        { 1, 0, -1 },
-    };
-    int kernely[3][3] = {   // significantly better-looking edge at lower resolutions
-        { 1, 2, 1},
-        {  0,    0,   0 },
-        {-1,-2,-1}
-    };
-
-    int zbir_x, zbir_y;
-    for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) {
-        zbir_x = zbir_y = 0;
-        for(int ky = 0; ky < 3; ++ky){
-            for(int kx = 0; kx < 3; ++kx){
-                zbir_x += pix.at(y-1+ky).at(x+kx-1)[0] * kernelx[ky][kx];               
-                zbir_y += pix.at(y-1+ky).at(x+kx-1)[0] * kernely[ky][kx];
-            }
-        }
-        temp_x[y][x][0] = zbir_x;
-        temp_y[y][x][0] = zbir_y;
-    }
-
-    for(auto y = 0; y < image_height; ++y) for(auto x = 0; x < image_width; ++x)
-        temp_x[y][x][0] = trunc(temp_x[y][x][0] + temp_y[y][x][0]) / 2;
-    pix = temp_x;
+    
 }
 
+greyscale image::to_greyscale(){
+    return greyscale{*this};
+}
+
+std::string image::what(){ return type; }
 
 // G R E Y S C A L E :
+
+std::string greyscale::what(){ return type; }
 
 greyscale::greyscale(const image& img ){
 
@@ -144,7 +120,7 @@ greyscale::greyscale(const image& img ){
     image_height = img.image_height;
 
     pix.resize(image_height);
-    for(auto i = 0; i <image_height;++i){ pix.at(i).resize(image_width); }    
+    for(auto i = 0; i <image_height;++i){ pix.at(i).resize(image_width); }
 
     for(int i = 0; i < image_height; ++i) for(int x = 0; x < image_width; ++x){
         pix.at(i).at(x) = trunc((img.pix.at(i).at(x)[0] + img.pix.at(i).at(x)[1] + img.pix.at(i).at(x)[2]) / 3);
@@ -241,10 +217,6 @@ void greyscale::sobel(){
     auto temp_x = pix;
     auto temp_y = pix;
 
-    // for(int i = 0; i < image_height; ++i) for(int x = 0; x < image_width; ++x){
-    //     temp_x[i][x] = temp_y[i][x] = trunc(pix.at(i).at(x) + pix.at(i).at(x) + pix.at(i).at(x) / 3);
-    // }
-
     int kernelx[3][3] = {
         { 1, 0, -1 },
         { 2, 0, -2 },
@@ -272,4 +244,9 @@ void greyscale::sobel(){
     for(auto y = 0; y < image_height; ++y) for(auto x = 0; x < image_width; ++x)
         temp_x[y][x] = trunc(temp_x[y][x] + temp_y[y][x]) / 2;
     pix = temp_x;
+}
+
+greyscale greyscale::to_greyscale(){
+    std::cout << "This image is already in greyscale format\n";
+    return *this;
 }

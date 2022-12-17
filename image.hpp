@@ -11,6 +11,7 @@ class slika{
         virtual void recolor_pixel( std::vector<int>&, int&, int, int) = 0;
         virtual void rgb_modifier(int, int) = 0;
     public:
+        virtual std::string what() = 0;
         virtual void modify_red(int) = 0;
         virtual void modify_green(int) = 0;
         virtual void modify_blue(int) = 0;
@@ -19,6 +20,7 @@ class slika{
         virtual void gaussian_blur() = 0;
         virtual void sobel() = 0;
         virtual void save(std::string) = 0;
+        virtual greyscale to_greyscale() = 0;
 };
 
 class image : public slika{
@@ -32,6 +34,7 @@ class image : public slika{
         void recolor_pixel( std::vector<int>&, int&, int, int);
         void rgb_modifier(int, int);
     public:
+        std::string what();
         image(std::string);
         void modify_red(int);
         void modify_green(int);
@@ -41,7 +44,7 @@ class image : public slika{
         void gaussian_blur();
         void sobel();
         void save(std::string);
-        greyscale to_greyscale( image );
+        greyscale to_greyscale();
 };
 
 class greyscale : public slika{
@@ -53,6 +56,7 @@ class greyscale : public slika{
         void recolor_pixel( std::vector<int>&, int&, int, int);
         void rgb_modifier(int, int);
     public:
+        std::string what();
         greyscale(const image&);
         greyscale(std::string);
         void modify_red(int);
@@ -63,4 +67,5 @@ class greyscale : public slika{
         void gaussian_blur();
         void sobel();
         void save(std::string);
+        virtual greyscale to_greyscale();
 };
