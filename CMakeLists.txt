@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( simp )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( simp main.cpp image.cpp )
+target_link_libraries( simp ${OpenCV_LIBS} )

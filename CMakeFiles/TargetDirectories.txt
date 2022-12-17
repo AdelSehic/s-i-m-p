@@ -1,0 +1,3 @@
+/home/adeldesktop/Desktop/GitHub/s-i-m-p/CMakeFiles/simp.dir
+/home/adeldesktop/Desktop/GitHub/s-i-m-p/CMakeFiles/edit_cache.dir
+/home/adeldesktop/Desktop/GitHub/s-i-m-p/CMakeFiles/rebuild_cache.dir
