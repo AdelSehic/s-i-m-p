@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <list>
 #include "image.hpp"
+#include "dft.hpp"
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -13,6 +14,28 @@ void grey( slika*& k ){
     auto temp = new greyscale{k->to_greyscale()};
     delete k;
     k = temp;
+}
+
+cv::Mat fourier(cv::Mat& img){
+    img.convertTo(img, CV_32FC1);
+    std::vector<cv::Mat> channels;
+    cv::split(img, channels);
+    for(auto&& i : channels) cv::dft( i, i);
+    cv::Mat four;
+    cv::merge(channels, four);
+    four.convertTo(four, CV_8UC3);
+    return four;
+}
+
+cv::Mat inverse_fourier(cv::Mat& img){
+    img.convertTo(img, CV_32FC1);
+    std::vector<cv::Mat> channels;
+    cv::split(img, channels);
+    for(auto&& i : channels) cv::dft( i, i, cv::DFT_INVERSE );
+    cv::Mat four;
+    cv::merge(channels, four);
+    four.convertTo(four, CV_8UC3);
+    return four;
 }
 
 int main(){
@@ -102,9 +125,34 @@ int main(){
         mats[i] = Mat( hg, wd, CV_8UC3, k );
     }
 
-    for (auto &&i : keys){
-        cv::imshow(i, mats[i]);
-        cv::waitKey(0);
+    for (auto it = keys.begin();;){
+        cv::imshow(*it, mats[*it]);
+        int key = cv::waitKey(0);
+        if(key == 's') imwrite(*it+".png", mats[*it]);
+        if(key == 'l'){
+            ++it;
+            if(it == keys.end()) it = keys.begin();
+        }
+        if(key == 'k'){
+            if( it==keys.begin() ) it = keys.end();
+            --it;
+        }
+        if(key == 'e'){
+            cv::Mat grey;
+            cv::cvtColor(mats[*it], grey, cv::COLOR_BGR2GRAY);
+            cv::Canny(grey,grey,125,175);
+            mats[*it] = grey;
+        }
+        if(key == 'f'){
+            mats[*it] = fourier( mats[*it] );
+            // fourier_transform( mats[*it] );
+        }
+        if(key == 'i'){
+            mats[*it] = inverse_fourier( mats[*it] );
+            // fourier_transform( mats[*it] );
+        }
+        if(key == 'q') break;
+        cv::destroyAllWindows();
     }
    
     for(auto&& i : keys) delete slike[i];

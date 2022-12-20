@@ -646,8 +646,11 @@ CMakeFiles/simp.dir/main.cpp.o: main.cpp \
   /usr/local/include/opencv4/opencv2/videoio.hpp \
   /usr/local/include/opencv4/opencv2/imgproc/imgproc.hpp \
   /usr/local/include/opencv4/opencv2/imgproc.hpp \
-  /usr/local/include/opencv4/opencv2/imgproc/segmentation.hpp
+  /usr/local/include/opencv4/opencv2/imgproc/segmentation.hpp \
+  dft.hpp
 
+
+dft.hpp:
 
 /usr/include/c++/11/bits/list.tcc:
 
