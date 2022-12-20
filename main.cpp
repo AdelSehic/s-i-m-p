@@ -7,6 +7,8 @@
 #include <opencv2/highgui.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
 
+using namespace cv;
+
 void grey( slika*& k ){
     auto temp = new greyscale{k->to_greyscale()};
     delete k;
@@ -92,12 +94,18 @@ int main(){
         }
     }
 
-    // std::unordered_map<std::string, cv::Mat> images;
+    std::unordered_map<std::string, Mat> mats;
 
-    slike["apollo"]->to_mat();
+    int wd = 0, hg = 0, dp = 0;
+    for (auto &&i : keys){
+        auto k = slike[i]->data(hg, wd, dp);
+        mats[i] = Mat( hg, wd, CV_8UC3, k );
+    }
 
-    // working -> to_mat();
-
-    // cv::imshow("mat", m);
-    
+    for (auto &&i : keys){
+        cv::imshow(i, mats[i]);
+        cv::waitKey(0);
+    }
+   
+    for(auto&& i : keys) delete slike[i];
 }

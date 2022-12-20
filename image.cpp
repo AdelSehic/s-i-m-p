@@ -1,4 +1,6 @@
 #include "image.hpp"
+#include <typeinfo>
+#include <cxxabi.h>
 
 void image::recolor_pixel( std::vector<uint16_t>& pix, uint16_t& r, uint16_t g = 0, uint16_t b = 0){
     pix.at(0) = r;
@@ -108,39 +110,52 @@ greyscale image::to_greyscale(){
 
 std::string image::what(){ return type; }
 
-void image::to_mat(){
-    // cv::Mat m = cv::Mat( image_width, image_height, CV_8UC1 );
+uint8_t* image::data(int& a, int& b, int& c){
 
-    // return m;
+    using namespace cv;
+    using namespace std;
+
+    a = image_height;
+    b = image_width;
+    c = image_depth;
+
+    auto data = new uint8_t[image_width*image_height*3];
+
+    size_t brojac = 0;
+    for( auto i = pix.begin(); i != pix.end(); ++i ){
+        for( auto j = i->begin(); j != i->end(); ++j ){
+            data[brojac++] = j->at(2);
+            data[brojac++] = j->at(1);
+            data[brojac++] = j->at(0);
+        }
+    }
+
+    // std::cout << *(typeid(data[0]).name()) << '\n';
+
+    // uint8_t m = new Mat( image_height, image_width, CV_8UC3, data );
+
+    return data;
 }
 
 // G R E Y S C A L E :
 
 
-void greyscale::to_mat(){
+uint8_t* greyscale::data(int& a, int& b, int& c){
 
     using namespace cv;
 
-    std::vector<uint16_t> onedim((size_t)image_width*image_height);
+    auto data = new uint8_t[image_width*image_height];
 
-    auto it = onedim.begin();
-    for(uint16_t i = 0; i < image_height; ++i){
-        for(uint16_t j = 0; j < image_height; ++j){
-            *it = pix.at(i).at(j);
-            ++it;
+    size_t brojac = 0;
+    for( auto i = pix.begin(); i != pix.end(); ++i ){
+        for( auto j = i->begin(); j != i->end(); ++j ){
+            data[brojac++] = *j;
         }
     }
 
-    Mat m(onedim);
+    // Mat* m = new Mat( image_height, image_width, CV_8UC1, data );
 
-    imshow("mat", m);
-
-    waitKey(0);
-
-    // Mat m(this->image_width, this->image_height, CV_8UC1 );
-    // memcpy(m.data, )
-
-    // return m;
+    return data;
 }
 
 std::string greyscale::what(){ return type; }

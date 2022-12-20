@@ -26,7 +26,7 @@ class slika{
         virtual void sobel() = 0;
         virtual void save(std::string) = 0;
         virtual greyscale to_greyscale() = 0;
-        virtual void to_mat() = 0;
+        virtual uint8_t* data(int&, int&, int&) = 0;
 };
 
 class image : public slika{
@@ -51,8 +51,7 @@ class image : public slika{
         void sobel();
         void save(std::string);
         greyscale to_greyscale();
-        void to_mat();
-        
+        uint8_t* data(int&, int&, int&);      
 };
 
 class greyscale : public slika{
@@ -79,5 +78,5 @@ class greyscale : public slika{
         void sobel();
         void save(std::string);
         virtual greyscale to_greyscale();
-        void to_mat();
+        uint8_t* data(int&, int&, int&);
 };

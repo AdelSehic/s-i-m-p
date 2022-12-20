@@ -320,7 +320,9 @@ CMakeFiles/simp.dir/image.cpp.o: image.cpp \
   /usr/local/include/opencv4/opencv2/videoio.hpp \
   /usr/local/include/opencv4/opencv2/imgproc/imgproc.hpp \
   /usr/local/include/opencv4/opencv2/imgproc.hpp \
-  /usr/local/include/opencv4/opencv2/imgproc/segmentation.hpp
+  /usr/local/include/opencv4/opencv2/imgproc/segmentation.hpp \
+  /usr/include/c++/11/cxxabi.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/cxxabi_tweaks.h
 
 CMakeFiles/simp.dir/main.cpp.o: main.cpp \
   /usr/include/stdc-predef.h \
@@ -652,6 +654,10 @@ CMakeFiles/simp.dir/main.cpp.o: main.cpp \
 /usr/include/c++/11/list:
 
 main.cpp:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/cxxabi_tweaks.h:
+
+/usr/include/c++/11/cxxabi.h:
 
 /usr/local/include/opencv4/opencv2/imgproc/segmentation.hpp:
 
