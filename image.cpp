@@ -1,12 +1,12 @@
 #include "image.hpp"
 
-void image::recolor_pixel( std::vector<int>& pix, int& r, int g = 0, int b = 0){
+void image::recolor_pixel( std::vector<uint16_t>& pix, uint16_t& r, uint16_t g = 0, uint16_t b = 0){
     pix.at(0) = r;
     pix.at(1) = g;
     pix.at(2) = b;
 }
 
-int slika::trunc(int value){
+uint16_t slika::trunc(uint16_t value){
     if(value>255) value = 255;
     if(value<0) value = 0;
     return value;
@@ -17,15 +17,15 @@ image::image(std::string ime){
 
     input.open(ime + ".ppm");
 
-    int r, g, b;
+    uint16_t r, g, b;
     std::string type;
 
     input >> type >> image_width >> image_height >> image_depth;
 
     pix.resize(image_height);
-    for(int i = 0; i < image_height; ++i){
+    for(uint16_t i = 0; i < image_height; ++i){
         pix.at(i).resize(image_width);
-        for(int x = 0; x < image_width; ++x)
+        for(uint16_t x = 0; x < image_width; ++x)
             pix.at(i).at(x).resize(3); 
     }
 
@@ -43,8 +43,8 @@ void image::save(std::string ime){
 
     output << "P3\n" << image_width << ' ' << image_height << '\n' << image_depth << '\n';
 
-    for(int i = 0; i < image_height; ++i){
-        for(int x = 0; x < image_width; ++x){
+    for(uint16_t i = 0; i < image_height; ++i){
+        for(uint16_t x = 0; x < image_width; ++x){
             output << trunc(pix.at(i).at(x)[0]) << ' ';
             output << trunc(pix.at(i).at(x)[1]) << ' ';
             output << trunc(pix.at(i).at(x)[2]) << ' ';
@@ -54,20 +54,20 @@ void image::save(std::string ime){
     output.close();
 };
 
-void image::rgb_modifier(int choice, int modifier){
+void image::rgb_modifier(uint16_t choice, uint16_t modifier){
     for(auto&& h : pix) for(auto&& w : h) w[choice] += modifier;
 }
 
-void image::modify_red(int a){rgb_modifier(0, a);};
-void image::modify_green(int a){rgb_modifier(1, a);}
-void image::modify_blue(int a){rgb_modifier(2, a);}
+void image::modify_red(uint16_t a){rgb_modifier(0, a);};
+void image::modify_green(uint16_t a){rgb_modifier(1, a);}
+void image::modify_blue(uint16_t a){rgb_modifier(2, a);}
 
 void image::modify_contrast(double modifier){
-    for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) w[i] =  trunc(modifier*(w[i]-128)+128);
+    for(auto&& h : pix) for(auto&& w : h) for(uint16_t i = 0; i < 3; ++i) w[i] =  trunc(modifier*(w[i]-128)+128);
 }
 
-void image::modify_brightness(int modifier){
-    for(auto&& h : pix) for(auto&& w : h) for(int i = 0; i < 3; ++i) trunc(w[i] +=  modifier);
+void image::modify_brightness(uint16_t modifier){
+    for(auto&& h : pix) for(auto&& w : h) for(uint16_t i = 0; i < 3; ++i) trunc(w[i] +=  modifier);
 }
 
 void image::gaussian_blur(){
@@ -82,9 +82,9 @@ void image::gaussian_blur(){
     };
 
     for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) for(auto i = 0; i < 3; ++i){
-        int zbir = 0;
-        for(int ky = 0; ky < 5; ++ky){
-            for(int kx = 0; kx < 5; ++kx){
+        uint16_t zbir = 0;
+        for(uint16_t ky = 0; ky < 5; ++ky){
+            for(uint16_t kx = 0; kx < 5; ++kx){
                 zbir += pix.at(y-2+ky).at(x+kx-2)[i] * kernel[ky][kx];                
             }
         }
@@ -119,23 +119,25 @@ void image::to_mat(){
 
 void greyscale::to_mat(){
 
-    // using namespace cv;
+    using namespace cv;
 
-    // std::vector<int> onedim((size_t)image_width*image_height);
+    std::vector<uint16_t> onedim((size_t)image_width*image_height);
 
-    // auto it = onedim.begin();
-    // for(int i = 0; i < image_height; ++i){
-    //     for(int j = 0; j < image_height; ++j){
-    //         *it = pix.at(i).at(j);
-    //         ++it;
-    //     }
-    // }
+    auto it = onedim.begin();
+    for(uint16_t i = 0; i < image_height; ++i){
+        for(uint16_t j = 0; j < image_height; ++j){
+            *it = pix.at(i).at(j);
+            ++it;
+        }
+    }
 
-    // Mat m(onedim);
+    Mat m(onedim);
 
+    imshow("mat", m);
+
+    waitKey(0);
 
     // Mat m(this->image_width, this->image_height, CV_8UC1 );
-    // imshow("mat", m);
     // memcpy(m.data, )
 
     // return m;
@@ -153,15 +155,15 @@ greyscale::greyscale(const image& img ){
     pix.resize(image_height);
     for(auto i = 0; i <image_height;++i){ pix.at(i).resize(image_width); }
 
-    for(int i = 0; i < image_height; ++i) for(int x = 0; x < image_width; ++x){
+    for(uint16_t i = 0; i < image_height; ++i) for(uint16_t x = 0; x < image_width; ++x){
         pix.at(i).at(x) = trunc((img.pix.at(i).at(x)[0] + img.pix.at(i).at(x)[1] + img.pix.at(i).at(x)[2]) / 3);
     }
 
 }
 
-void greyscale::recolor_pixel( std::vector<int>& pix, int& a, int v, int throwaway){ a = v;}
+void greyscale::recolor_pixel( std::vector<uint16_t>& pix, uint16_t& a, uint16_t v, uint16_t throwaway){ a = v;}
 
-int greyscale::trunc(int value){
+uint16_t greyscale::trunc(uint16_t value){
     if(value>255) value = 255;
     if(value<0) value = 0;
     return value;
@@ -172,7 +174,7 @@ greyscale::greyscale(std::string ime){
 
     input.open(ime + ".pgm");
 
-    int v;
+    uint16_t v;
 
     input >> type >> image_width >> image_height >> image_depth;
 
@@ -193,8 +195,8 @@ void greyscale::save(std::string ime){
 
     output << "P2\n" << image_width << ' ' << image_height << ' ' << image_depth << '\n';
 
-    for(int i = 0; i < image_height; ++i){
-        for(int x = 0; x < image_width; ++x){
+    for(uint16_t i = 0; i < image_height; ++i){
+        for(uint16_t x = 0; x < image_width; ++x){
             output << pix.at(i).at(x) << ' ';
         }
     }
@@ -202,19 +204,19 @@ void greyscale::save(std::string ime){
     output.close();
 };
 
-void greyscale::rgb_modifier(int choice, int modifier){
+void greyscale::rgb_modifier(uint16_t choice, uint16_t modifier){
     std::cout << "Undefined for greyscale greyscales\n";
 }
 
-void greyscale::modify_red(int a){rgb_modifier(0, a);};
-void greyscale::modify_green(int a){rgb_modifier(1, a);}
-void greyscale::modify_blue(int a){rgb_modifier(2, a);}
+void greyscale::modify_red(uint16_t a){rgb_modifier(0, a);};
+void greyscale::modify_green(uint16_t a){rgb_modifier(1, a);}
+void greyscale::modify_blue(uint16_t a){rgb_modifier(2, a);}
 
 void greyscale::modify_contrast(double modifier){
     for(auto&& h : pix) for(auto&& w : h) w =  trunc(modifier*(w-128)+128);
 }
 
-void greyscale::modify_brightness(int modifier){
+void greyscale::modify_brightness(uint16_t modifier){
     for(auto&& h : pix) for(auto&& w : h) trunc(w +=  modifier);
 }
 
@@ -230,9 +232,9 @@ void greyscale::gaussian_blur(){
     };
 
     for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x){
-        int zbir = 0;
-        for(int ky = 0; ky < 5; ++ky){
-            for(int kx = 0; kx < 5; ++kx){
+        uint16_t zbir = 0;
+        for(uint16_t ky = 0; ky < 5; ++ky){
+            for(uint16_t kx = 0; kx < 5; ++kx){
                 zbir += pix.at(y-2+ky).at(x+kx-2) * kernel[ky][kx];                
             }
         }
@@ -259,11 +261,11 @@ void greyscale::sobel(){
         {-1,-2,-1}
     };
 
-    int zbir_x, zbir_y;
+    uint16_t zbir_x, zbir_y;
     for(auto y = 3; y < image_height-3; ++y) for(auto x = 3; x < image_width-3; ++x) {
         zbir_x = zbir_y = 0;
-        for(int ky = 0; ky < 3; ++ky){
-            for(int kx = 0; kx < 3; ++kx){
+        for(uint16_t ky = 0; ky < 3; ++ky){
+            for(uint16_t kx = 0; kx < 3; ++kx){
                 zbir_x += pix.at(y-1+ky).at(x+kx-1) * kernelx[ky][kx];               
                 zbir_y += pix.at(y-1+ky).at(x+kx-1) * kernely[ky][kx];
             }
