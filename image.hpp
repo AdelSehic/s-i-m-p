@@ -2,6 +2,10 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+#include "opencv2/imgproc/imgproc.hpp"
 
 class greyscale;
 
@@ -21,6 +25,7 @@ class slika{
         virtual void sobel() = 0;
         virtual void save(std::string) = 0;
         virtual greyscale to_greyscale() = 0;
+        virtual void to_mat() = 0;
 };
 
 class image : public slika{
@@ -45,9 +50,14 @@ class image : public slika{
         void sobel();
         void save(std::string);
         greyscale to_greyscale();
+        void to_mat();
+        
 };
 
 class greyscale : public slika{
+
+    friend image;
+
     private:
         int image_width = 0, image_height = 0, image_depth = 255;
         std::string type = "P2";
@@ -68,4 +78,5 @@ class greyscale : public slika{
         void sobel();
         void save(std::string);
         virtual greyscale to_greyscale();
+        void to_mat();
 };

@@ -108,7 +108,38 @@ greyscale image::to_greyscale(){
 
 std::string image::what(){ return type; }
 
+void image::to_mat(){
+    // cv::Mat m = cv::Mat( image_width, image_height, CV_8UC1 );
+
+    // return m;
+}
+
 // G R E Y S C A L E :
+
+
+void greyscale::to_mat(){
+
+    // using namespace cv;
+
+    // std::vector<int> onedim((size_t)image_width*image_height);
+
+    // auto it = onedim.begin();
+    // for(int i = 0; i < image_height; ++i){
+    //     for(int j = 0; j < image_height; ++j){
+    //         *it = pix.at(i).at(j);
+    //         ++it;
+    //     }
+    // }
+
+    // Mat m(onedim);
+
+
+    // Mat m(this->image_width, this->image_height, CV_8UC1 );
+    // imshow("mat", m);
+    // memcpy(m.data, )
+
+    // return m;
+}
 
 std::string greyscale::what(){ return type; }
 
